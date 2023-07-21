@@ -23,6 +23,23 @@ async function run() {
   try {
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
+
+    const allTeacherData = client.db("frame-maker").collection("teachers");
+    const allCourses = client.db("frame-maker").collection("classes");
+
+    // Get ALl techer data
+    app.get("/teachers", async (req, res) => {
+      const cursor = allTeacherData.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+    // get all course data
+    app.get("/courses", async (req, res) => {
+      const cursor = allCourses.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
