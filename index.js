@@ -26,6 +26,22 @@ async function run() {
 
     const allTeacherData = client.db("frame-maker").collection("teachers");
     const allCourses = client.db("frame-maker").collection("classes");
+    const cartCollection = client.db("frame-maker").collection("carts");
+    const allUser = client.db("frame-maker").collection("users");
+
+    // Add User to server
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      const query = { email: user.email };
+      const alreadyUser = await usersCollection.findOne(query);
+      if (alreadyUser) {
+        return res.send({
+          message: "user is used",
+        });
+      }
+      const result = await allUser.insertOne(user);
+      res.send(result);
+    });
 
     // Get ALl techer data
     app.get("/teachers", async (req, res) => {
@@ -37,6 +53,35 @@ async function run() {
     app.get("/courses", async (req, res) => {
       const cursor = allCourses.find();
       const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    //  cart functionality
+    app.post("/carts", async (req, res) => {
+      const item = req.body;
+      console.log(item);
+      const result = await cartCollection.insertOne(item);
+      res.send(result);
+    });
+
+    app.get("/carts", async (req, res) => {
+      const email = req.query.email;
+      if (!email) {
+        res.send([]);
+      }
+      // match email data
+      const query = { email: email };
+      const result = await cartCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // delete single course
+    app.delete("/carts/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = {
+        _id: new ObjectId(id),
+      };
+      const result = await cartCollection.deleteOne(query);
       res.send(result);
     });
 
